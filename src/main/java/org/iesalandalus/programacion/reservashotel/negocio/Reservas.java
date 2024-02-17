@@ -38,43 +38,40 @@ public class Reservas {
 
     public void insertar(Reserva reserva) throws OperationNotSupportedException {
         if (reserva == null) {
-            throw new NullPointerException("ERROR: No se puede insertar una reserva nula.");
+            throw new IllegalArgumentException("ERROR: No se puede insertar una reserva nula.");
         }
-
-        if (tamanoSuperado(1) || capacidadSuperada(1) || buscar(reserva) != null) {
-            throw new OperationNotSupportedException("ERROR: No se aceptan más reservas.");
+        if (tamanoSuperado() || buscarIndice(reserva) != -1) {
+            throw new OperationNotSupportedException("ERROR: No se puede insertar la reserva.");
         }
-
-        reservas[tamano++] = reserva;
+        reservas[tamano++] = new Reserva(reserva);
     }
 
     public Reserva buscar(Reserva reserva) {
+        if (reserva == null) {
+            throw new IllegalArgumentException("ERROR: No se puede buscar una reserva nula.");
+        }
         int indice = buscarIndice(reserva);
         if (indice != -1) {
-            return reservas[indice];
+            return new Reserva(reservas[indice]);
         }
         return null;
     }
 
     public void borrar(Reserva reserva) throws OperationNotSupportedException {
         if (reserva == null) {
-            throw new NullPointerException("ERROR: No se puede borrar una reserva nula.");
+            throw new IllegalArgumentException("ERROR: No se puede borrar una reserva nula.");
         }
-
         int indice = buscarIndice(reserva);
         if (indice == -1) {
             throw new OperationNotSupportedException("ERROR: No existe ninguna reserva como la indicada.");
         }
-
         desplazarUnaPosicionHaciaIzquierda(indice);
-        tamano--;
     }
 
-
-
+    // Método para obtener las reservas de un huésped específico
     public Reserva[] getReservas(Huesped huesped) {
         if (huesped == null) {
-            throw new NullPointerException("ERROR: No se pueden buscar reservas de un huésped nulo.");
+            throw new IllegalArgumentException("ERROR: No se pueden buscar reservas de un huésped nulo.");
         }
 
         Reserva[] reservasHuesped = new Reserva[tamano];
@@ -82,16 +79,17 @@ public class Reservas {
 
         for (int i = 0; i < tamano; i++) {
             if (reservas[i].getHuesped().equals(huesped)) {
-                reservasHuesped[contador++] = reservas[i];
+                reservasHuesped[contador++] = new Reserva(reservas[i]);
             }
         }
 
         return Arrays.copyOf(reservasHuesped, contador);
     }
 
+    // Método para obtener las reservas de un tipo de habitación específico
     public Reserva[] getReservas(TipoHabitacion tipoHabitacion) {
         if (tipoHabitacion == null) {
-            throw new NullPointerException("ERROR: No se pueden buscar reservas de un tipo de habitación nula.");
+            throw new IllegalArgumentException("ERROR: No se pueden buscar reservas de un tipo de habitación nula.");
         }
 
         Reserva[] reservasTipo = new Reserva[tamano];
@@ -99,16 +97,17 @@ public class Reservas {
 
         for (int i = 0; i < tamano; i++) {
             if (reservas[i].getHabitacion().getTipoHabitacion().equals(tipoHabitacion)) {
-                reservasTipo[contador++] = reservas[i];
+                reservasTipo[contador++] = new Reserva(reservas[i]);
             }
         }
 
         return Arrays.copyOf(reservasTipo, contador);
     }
 
+    // Método para obtener las reservas futuras de una habitación específica
     public Reserva[] getReservasFuturas(Habitacion habitacion) {
         if (habitacion == null) {
-            throw new NullPointerException("ERROR: No se pueden buscar reservas de una habitación nula.");
+            throw new IllegalArgumentException("ERROR: No se pueden buscar reservas de una habitación nula.");
         }
 
         Reserva[] reservasFuturas = new Reserva[tamano];
@@ -116,7 +115,7 @@ public class Reservas {
 
         for (int i = 0; i < tamano; i++) {
             if (reservas[i].getHabitacion().equals(habitacion) && reservas[i].getFechaInicioReserva().isAfter(LocalDate.now())) {
-                reservasFuturas[contador++] = reservas[i];
+                reservasFuturas[contador++] = new Reserva(reservas[i]);
             }
         }
 
@@ -124,7 +123,7 @@ public class Reservas {
     }
 
     private Reserva[] copiaProfundaReservas() {
-        Reserva[] copia = new Reserva[capacidad];
+        Reserva[] copia = new Reserva[tamano];
         for (int i = 0; i < tamano; i++) {
             copia[i] = new Reserva(reservas[i]);
         }
@@ -147,19 +146,34 @@ public class Reservas {
         reservas[tamano - 1] = null;
     }
 
-    private boolean tamanoSuperado(int elementos) {
-        return tamano + elementos > capacidad;
+    // En la clase Reservas, cambiar la firma del método consultarDisponibilidad para aceptar un TipoHabitacion
+    private boolean tamanoSuperado() {
+        return tamano >= capacidad;
     }
 
-    private boolean capacidadSuperada(int elementos) {
-        return tamano + elementos > reservas.length;
+    private boolean capacidadSuperada() {
+        return tamano >= reservas.length;
     }
 
-    public boolean desplazarUnaPosicionHaciaIzquierda(Object tipoHabitacion, LocalDate fechaInicioReserva, LocalDate fechaFinReserva) {
-        return false;
-    }
+    // Método para consultar la disponibilidad de una habitación en un rango de fechas
+    public boolean consultarDisponibilidad(TipoHabitacion habitacion, LocalDate fechaInicio, LocalDate fechaFin) {
+        if (habitacion == null) {
+            throw new IllegalArgumentException("ERROR: No se puede consultar la disponibilidad de una habitación nula.");
+        }
+        if (fechaInicio == null || fechaFin == null) {
+            throw new IllegalArgumentException("ERROR: Las fechas proporcionadas no pueden ser nulas.");
+        }
+        if (fechaFin.isBefore(fechaInicio)) {
+            throw new IllegalArgumentException("ERROR: La fecha de inicio debe ser anterior a la fecha de fin.");
+        }
 
-    public void consultarDisponibilidad() {
+        for (int i = 0; i < tamano; i++) {
+            boolean esMismaHabitacion = reservas[i].getHabitacion().equals(habitacion);
+            boolean seSolapa = fechaInicio.isBefore(reservas[i].getFechaFinReserva()) && fechaFin.isAfter(reservas[i].getFechaInicioReserva());
+            if (esMismaHabitacion && seSolapa) {
+                return false; // La habitación no está disponible porque las fechas se solapan con una reserva existente
+            }
+        }
+        return true; // La habitación está disponible si ninguna reserva existente se solapa con el rango de fechas proporcionado
     }
 }
-

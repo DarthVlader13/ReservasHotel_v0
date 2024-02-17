@@ -14,7 +14,6 @@ public enum Regimen {
         this.cadenaAMostrar = cadenaAMostrar;
         this.incrementoPrecio = incrementoPrecio;
     }
-
     // Método getter
     public double getIncrementoPrecio() {
         return incrementoPrecio;
@@ -23,7 +22,6 @@ public enum Regimen {
     // Método toString que devuelve la cadena esperada por los tests
     @Override
     public String toString() {
-        return cadenaAMostrar;
+        return (ordinal() + 1) + ".-" + cadenaAMostrar;
     }
 }
-

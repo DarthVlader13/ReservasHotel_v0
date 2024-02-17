@@ -13,13 +13,16 @@ import java.time.LocalDate;
 
 public class Consola {
 
+    // Constructor privado
+    private Consola() {
+    }
     public static void mostrarMenu() {
         for (Opcion opcion : Opcion.values()) {
             System.out.println(opcion);
         }
     }
 
-    public Opcion elegirOpcion() {
+    public static Opcion elegirOpcion() {
         int ordinal;
         do {
             System.out.print("Elige una opción: ");
@@ -33,7 +36,7 @@ public class Consola {
         return Opcion.values()[ordinal];
     }
 
-    public Huesped leerHuesped() {
+    public static Huesped leerHuesped() {
         System.out.print("Introduce el nombre del huésped: ");
         String nombre = Entrada.cadena();
         System.out.print("Introduce los apellidos del huésped: ");
@@ -44,13 +47,13 @@ public class Consola {
         return new Huesped(nombre, apellidos, dni, fechaNacimiento);
     }
 
-    public Huesped getHuespedPorDni() {
+    public static Huesped getHuespedPorDni() {
         System.out.print("Introduce el DNI del huésped: ");
         String dni = Entrada.cadena();
         return new Huesped("NombreFicticio", "ApellidosFicticios", dni, null);
     }
 
-    public LocalDate leerFecha(String mensaje) {
+    public static LocalDate leerFecha(String mensaje) {
         LocalDate fecha = null;
         do {
             try {
@@ -64,7 +67,7 @@ public class Consola {
         return fecha;
     }
 
-    public Habitacion leerHabitacion() {
+    public static Habitacion leerHabitacion() {
         System.out.print("Introduce el número de planta de la habitación: ");
         int numeroPlanta = Entrada.entero();
         System.out.print("Introduce el número de puerta de la habitación: ");
@@ -73,7 +76,7 @@ public class Consola {
         return new Habitacion(numeroPlanta, numeroPuerta, tipoHabitacion);
     }
 
-    public Habitacion leerHabitacionPorIdentificador() {
+    public static Habitacion leerHabitacionPorIdentificador() {
         System.out.print("Introduce el número de planta de la habitación: ");
         int numeroPlanta = Entrada.entero();
         System.out.print("Introduce el número de puerta de la habitación: ");
@@ -82,7 +85,7 @@ public class Consola {
         return new Habitacion(numeroPlanta, numeroPuerta, tipoHabitacion);
     }
 
-    public TipoHabitacion leerTipoHabitacion() {
+    public static TipoHabitacion leerTipoHabitacion() {
         System.out.println("Elige un tipo de habitación:");
         for (TipoHabitacion tipo : TipoHabitacion.values()) {
             System.out.println(tipo);
@@ -95,7 +98,7 @@ public class Consola {
         return TipoHabitacion.values()[ordinal];
     }
 
-    public Regimen leerRegimen() {
+    public static Regimen leerRegimen() {
         System.out.println("Elige un régimen:");
         for (Regimen regimen : Regimen.values()) {
             System.out.println(regimen);
@@ -108,7 +111,7 @@ public class Consola {
         return Regimen.values()[ordinal];
     }
 
-    public Reserva leerReserva() {
+    public static Reserva leerReserva() {
         Huesped huesped = leerHuesped();
         Habitacion habitacion = leerHabitacion();
         LocalDate fechaInicio = leerFecha("Introduce la fecha de inicio de la reserva (YYYY-MM-DD): ");

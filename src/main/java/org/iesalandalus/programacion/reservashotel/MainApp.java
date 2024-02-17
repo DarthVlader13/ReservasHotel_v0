@@ -12,108 +12,109 @@ import java.time.LocalDate;
 
 public class MainApp {
 
-    private static final int CAPACIDAD = 100; // ajusta la capacidad según sea necesario
+    private static final int CAPACIDAD = 100;
     private static final Reservas reservas = new Reservas(CAPACIDAD);
     private static final Habitaciones habitaciones = new Habitaciones(CAPACIDAD);
     private static final Huespedes huespedes = new Huespedes(CAPACIDAD);
 
     public static void main(String[] args) {
-        Consola consola = new Consola();
-
         do {
             Consola.mostrarMenu();
-            Opcion opcion = consola.elegirOpcion();
-            ejecutarOpcion(opcion, consola);
+            Opcion opcion = Consola.elegirOpcion();
+            ejecutarOpcion(opcion);
         } while (true);
     }
 
-    private static void ejecutarOpcion(Opcion opcion, Consola consola) {
+    private static void ejecutarOpcion(Opcion opcion) {
         switch (opcion) {
             case INSERTAR_HUESPED:
-                insertarHuesped(consola);
+                insertarHuesped();
                 break;
             case BUSCAR_HUESPED:
-                buscarHuesped(consola);
+                buscarHuesped();
                 break;
             case BORRAR_HUESPED:
-                borrarHuesped(consola);
+                borrarHuesped();
                 break;
             case MOSTRAR_HUESPEDES:
                 mostrarHuespedes();
                 break;
             case INSERTAR_HABITACION:
-                insertarHabitacion(consola);
+                insertarHabitacion();
                 break;
             case BUSCAR_HABITACION:
-                buscarHabitacion(consola);
+                buscarHabitacion();
                 break;
             case BORRAR_HABITACION:
-                borrarHabitacion(consola);
+                borrarHabitacion();
                 break;
             case MOSTRAR_HABITACIONES:
                 mostrarHabitaciones();
                 break;
             case INSERTAR_RESERVA:
-                insertarReserva(consola);
+                insertarReserva();
                 break;
             case MOSTRAR_RESERVAS:
-                listarReservasHuesped(consola);
+                mostrarReservas();
                 break;
             case ANULAR_RESERVA:
-                anularReserva(consola);
+                anularReserva();
                 break;
             case CONSULTAR_DISPONIBILIDAD:
-                reservas.consultarDisponibilidad();
+                consultarDisponibilidad();
                 break;
             case SALIR:
                 System.out.println("Saliendo del programa.");
                 System.exit(0);
                 break;
+            default:
+                System.out.println("Opción no reconocida.");
+                break;
         }
     }
 
-    private static void anularReserva(Consola consola) {
-    }
-
-    private static void mostrarReservas() {
-    }
-
-    private static void insertarHuesped(Consola consola) {
+    private static void insertarHuesped() {
         try {
-            Huesped nuevoHuesped = consola.leerHuesped();
+            Huesped nuevoHuesped = Consola.leerHuesped();
             huespedes.insertar(nuevoHuesped);
             System.out.println("Huésped insertado correctamente.");
+        } catch (NullPointerException e) {
+            System.out.println("ERROR: No se puede insertar un huésped nulo.");
+        } catch (OperationNotSupportedException e) {
+            System.out.println(e.getMessage());
         } catch (IllegalArgumentException e) {
             System.out.println(e.getMessage());
         }
     }
 
-    private static void buscarHuesped(Consola consola) {
+    private static void buscarHuesped() {
         try {
-            Huesped huespedBuscado = consola.getHuespedPorDni();
+            Huesped huespedBuscado = Consola.getHuespedPorDni();
             Huesped encontrado = huespedes.buscar(huespedBuscado);
             if (encontrado != null) {
                 System.out.println("Huesped encontrado: " + encontrado);
             } else {
                 System.out.println("Huesped no encontrado.");
             }
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
+        } catch (NullPointerException e) {
+            System.out.println("ERROR: No se puede buscar un huésped nulo.");
         }
     }
 
-    private static void borrarHuesped(Consola consola) {
+    private static void borrarHuesped() {
         try {
-            Huesped huespedBorrar = consola.getHuespedPorDni();
+            Huesped huespedBorrar = Consola.getHuespedPorDni();
             huespedes.borrar(huespedBorrar);
             System.out.println("Huésped borrado correctamente.");
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
+            System.out.println("ERROR: No se puede borrar un huésped nulo.");
+        } catch (OperationNotSupportedException e) {
             System.out.println(e.getMessage());
         }
     }
 
     private static void mostrarHuespedes() {
-        Huesped[] arrayHuespedes = huespedes.getHuespedes();
+        Huesped[] arrayHuespedes = huespedes.get();
         if (arrayHuespedes.length > 0) {
             for (Huesped huesped : arrayHuespedes) {
                 System.out.println(huesped);
@@ -123,42 +124,46 @@ public class MainApp {
         }
     }
 
-    private static void insertarHabitacion(Consola consola) {
+    private static void insertarHabitacion() {
         try {
-            Habitacion nuevaHabitacion = consola.leerHabitacion();
+            Habitacion nuevaHabitacion = Consola.leerHabitacion();
             habitaciones.insertar(nuevaHabitacion);
             System.out.println("Habitación insertada correctamente.");
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
+            System.out.println("ERROR: No se puede insertar una habitación nula.");
+        } catch (OperationNotSupportedException e) {
             System.out.println(e.getMessage());
         }
     }
 
-    private static void buscarHabitacion(Consola consola) {
+    private static void buscarHabitacion() {
         try {
-            Habitacion habitacionBuscada = consola.leerHabitacionPorIdentificador();
+            Habitacion habitacionBuscada = Consola.leerHabitacionPorIdentificador();
             Habitacion encontrada = habitaciones.buscar(habitacionBuscada);
             if (encontrada != null) {
                 System.out.println("Habitación encontrada: " + encontrada);
             } else {
                 System.out.println("Habitación no encontrada.");
             }
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
+        } catch (NullPointerException e) {
+            System.out.println("ERROR: No se puede buscar una habitación nula.");
         }
     }
 
-    private static void borrarHabitacion(Consola consola) {
+    private static void borrarHabitacion() {
         try {
-            Habitacion habitacionBorrar = consola.leerHabitacionPorIdentificador();
+            Habitacion habitacionBorrar = Consola.leerHabitacionPorIdentificador();
             habitaciones.borrar(habitacionBorrar);
             System.out.println("Habitación borrada correctamente.");
-        } catch (IllegalArgumentException e) {
+        } catch (NullPointerException e) {
+            System.out.println("ERROR: No se puede borrar una habitación nula.");
+        } catch (OperationNotSupportedException e) {
             System.out.println(e.getMessage());
         }
     }
 
     private static void mostrarHabitaciones() {
-        Habitacion[] arrayHabitaciones = habitaciones.getHabitaciones();
+        Habitacion[] arrayHabitaciones = habitaciones.get();
         if (arrayHabitaciones.length > 0) {
             for (Habitacion habitacion : arrayHabitaciones) {
                 System.out.println(habitacion);
@@ -168,44 +173,79 @@ public class MainApp {
         }
     }
 
-    private static void insertarReserva(Consola consola) {
+    private static void insertarReserva() {
         try {
-            Reserva nuevaReserva = consola.leerReserva();
-            if (reservas.desplazarUnaPosicionHaciaIzquierda(nuevaReserva.getTipoHabitacion(), nuevaReserva.getFechaInicioReserva(), nuevaReserva.getFechaFinReserva())) {
-                reservas.insertar(nuevaReserva);
-                System.out.println("Reserva insertada correctamente.");
-            } else {
-                System.out.println("No hay disponibilidad para la habitación y fechas indicadas.");
-            }
-        } catch (OperationNotSupportedException | IllegalArgumentException e) {
+            Reserva nuevaReserva = Consola.leerReserva();
+            reservas.insertar(nuevaReserva);
+            System.out.println("Reserva insertada correctamente.");
+        } catch (NullPointerException e) {
+            System.out.println("ERROR: No se puede insertar una reserva nula.");
+        } catch (OperationNotSupportedException e) {
             System.out.println(e.getMessage());
         }
     }
 
-    private static void listarReservasHuesped(Consola consola) {
-        try {
-            Huesped huesped = consola.getHuespedPorDni();
-            Reserva[] reservasHuesped = reservas.getReservas(huesped);
-            mostrarListaReservas(reservasHuesped);
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    private static void listarReservasTipoHabitacion(Consola consola) {
-        TipoHabitacion tipoHabitacion = consola.leerTipoHabitacion();
-        Reserva[] reservasTipoHabitacion = reservas.getReservas(tipoHabitacion);
-        mostrarListaReservas(reservasTipoHabitacion);
-    }
-
-    private static void mostrarListaReservas(Reserva[] reservas) {
-        if (reservas.length > 0) {
-            for (int i = 0; i < reservas.length; i++) {
-                System.out.println((i + 1) + ". " + reservas[i]);
+    private static void mostrarReservas() {
+        Reserva[] arrayReservas = reservas.get();
+        if (arrayReservas.length > 0) {
+            for (Reserva reserva : arrayReservas) {
+                System.out.println(reserva);
             }
         } else {
             System.out.println("No hay reservas.");
         }
     }
 
+    private static void anularReserva() {
+        try {
+            Huesped huesped = Consola.getHuespedPorDni();
+            Reserva reservaAnular = reservas.buscar(Consola.leerReserva());
+            if (reservaAnular != null && reservaAnular.getHuesped().equals(huesped)) {
+                reservas.borrar(reservaAnular);
+                System.out.println("Reserva anulada correctamente.");
+            } else {
+                System.out.println("No se ha encontrado la reserva o no corresponde al huésped indicado.");
+            }
+        } catch (NullPointerException e) {
+            System.out.println("ERROR: No se puede anular una reserva nula.");
+        } catch (OperationNotSupportedException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private static void consultarDisponibilidad() {
+        TipoHabitacion tipoHabitacion = Consola.leerTipoHabitacion();
+        LocalDate fechaInicio = Consola.leerFecha("Introduce la fecha de inicio de la reserva (YYYY-MM-DD): ");
+        LocalDate fechaFin = Consola.leerFecha("Introduce la fecha de fin de la reserva (YYYY-MM-DD): ");
+
+        boolean disponibilidad = reservas.consultarDisponibilidad(tipoHabitacion, fechaInicio, fechaFin);
+        if (disponibilidad) {
+            System.out.println("Hay habitaciones disponibles del tipo " + tipoHabitacion + " en las fechas indicadas.");
+        } else {
+            System.out.println("No hay habitaciones disponibles del tipo " + tipoHabitacion + " en las fechas indicadas.");
+        }
+    }
+
+    private static void mostrarListaReservas(Reserva[] reservas) {
+        if (reservas != null && reservas.length > 0) {
+            for (Reserva reserva : reservas) {
+                System.out.println(reserva);
+            }
+        } else {
+            System.out.println("No hay reservas que mostrar.");
+        }
+    }
+
+    // Los métodos para listarReservasHuesped y listarReservasTipoHabitacion se implementan de forma similar
+    // a los métodos de mostrarHuespedes y mostrarHabitaciones, pero filtrando por el criterio correspondiente.
+
+    private static void listarReservasHuesped(Huesped huesped) {
+        Reserva[] reservasHuesped = reservas.getReservas(huesped);
+        mostrarListaReservas(reservasHuesped);
+    }
+
+    private static void listarReservasTipoHabitacion(TipoHabitacion tipoHabitacion) {
+        Reserva[] reservasTipoHabitacion = reservas.getReservas(tipoHabitacion);
+        mostrarListaReservas(reservasTipoHabitacion);
+    }
 }

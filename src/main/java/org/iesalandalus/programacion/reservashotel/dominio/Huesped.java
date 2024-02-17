@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 public class Huesped {
     private static final String ER_TELEFONO = "\\d{9}";
-    private static final String ER_CORREO = "^[\\w-]+(\\.[\\w-]+)*@[\\w-]+(\\.[\\w-]+)*(\\.[a-zA-Z]{2,})$";
+    private static final String ER_CORREO = "^[\\w-\\.]+@[\\w-]+(\\.[\\w-]+)*(\\.[a-zA-Z]{2,})$";
     private static final String ER_DNI = "\\d{8}[A-HJ-NP-TV-Z]";
     private static final String FORMATO_FECHA = "dd/MM/yyyy";
 
@@ -16,17 +16,14 @@ public class Huesped {
     private String telefono;
     private String correo;
     private String dni;
-    private final LocalDate fechaNacimiento;
+    private LocalDate fechaNacimiento;
 
     public Huesped(String nombre, String dni, String correo, String telefono, LocalDate fechaNacimiento) {
         setNombre(nombre);
         setDni(dni);
         setCorreo(correo);
         setTelefono(telefono);
-        if (fechaNacimiento == null) {
-            throw new NullPointerException("ERROR: La fecha de nacimiento de un huésped no puede ser nula.");
-        }
-        this.fechaNacimiento = fechaNacimiento;
+        setFechaNacimiento(fechaNacimiento);
     }
 
     public Huesped(Huesped huesped) {
@@ -40,9 +37,7 @@ public class Huesped {
         this.fechaNacimiento = huesped.getFechaNacimiento();
     }
 
-    public Huesped(String nombreFicticio, String apellidosFicticios, String dni, LocalDate fechaNacimiento) {
-
-        this.fechaNacimiento = fechaNacimiento;
+    public Huesped(String nombre, String apellidos, String dni, LocalDate fechaNacimiento) {
     }
 
     public String getNombre() {
@@ -53,14 +48,14 @@ public class Huesped {
         if (nombre == null) {
             throw new NullPointerException("ERROR: El nombre no puede ser nulo.");
         }
-        if (nombre.trim().equals("")) {
+        if (nombre.trim().isEmpty()) {
             throw new IllegalArgumentException("ERROR: El nombre no puede estar vacío.");
         }
         this.nombre = formateaNombre(nombre);
     }
 
     private String formateaNombre(String nombre) {
-        String[] palabras = nombre.trim().split(" ");
+        String[] palabras = nombre.trim().split("\\s+");
         StringBuilder nombreFormateado = new StringBuilder();
         for (String palabra : palabras) {
             nombreFormateado.append(palabra.substring(0, 1).toUpperCase()).append(palabra.substring(1).toLowerCase()).append(" ");
@@ -104,13 +99,13 @@ public class Huesped {
         if (dni == null) {
             throw new NullPointerException("ERROR: El DNI no puede ser nulo.");
         }
-        if (!comprobarFormatoDni(dni)) {
-            throw new IllegalArgumentException("ERROR: El DNI no tiene un formato válido.");
+        if (!dni.matches(ER_DNI) || !comprobarLetraDni(dni)) {
+            throw new IllegalArgumentException("ERROR: El DNI no tiene un formato válido o la letra no es correcta.");
         }
         this.dni = dni;
     }
 
-    private boolean comprobarFormatoDni(String dni) {
+    private boolean comprobarLetraDni(String dni) {
         Pattern pattern = Pattern.compile(ER_DNI);
         Matcher matcher = pattern.matcher(dni);
         if (!matcher.matches()) {
@@ -124,6 +119,22 @@ public class Huesped {
 
     public LocalDate getFechaNacimiento() {
         return fechaNacimiento;
+    }
+
+    public void setFechaNacimiento(LocalDate fechaNacimiento) {
+        if (fechaNacimiento == null) {
+            throw new NullPointerException("ERROR: La fecha de nacimiento no puede ser nula.");
+        }
+        this.fechaNacimiento = fechaNacimiento;
+    }
+
+    public String getIniciales() {
+        String[] palabras = nombre.split("\\s+");
+        StringBuilder iniciales = new StringBuilder();
+        for (String palabra : palabras) {
+            iniciales.append(palabra.charAt(0));
+        }
+        return iniciales.toString().toUpperCase();
     }
 
     @Override
@@ -145,7 +156,8 @@ public class Huesped {
 
     @Override
     public String toString() {
-        DateTimeFormatter DateTimeFormatter = null;
-        return String.format("nombre=%s, DNI=%s, correo=%s, teléfono=%s, fecha nacimiento=%s", nombre, dni, correo, telefono, fechaNacimiento.format(DateTimeFormatter.ofPattern(FORMATO_FECHA)));
+        String iniciales = getIniciales();
+        return String.format("nombre=%s (%s), DNI=%s, correo=%s, teléfono=%s, fecha nacimiento=%s",
+                formateaNombre(nombre), iniciales, dni, correo, telefono, fechaNacimiento.format(DateTimeFormatter.ofPattern(FORMATO_FECHA)));
     }
 }

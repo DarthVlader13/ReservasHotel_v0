@@ -1,18 +1,16 @@
 package org.iesalandalus.programacion.reservashotel.negocio;
 
 import org.iesalandalus.programacion.reservashotel.dominio.Huesped;
-
-import java.util.Arrays;
+import javax.naming.OperationNotSupportedException;
 
 public class Huespedes {
-    private static final int MAX_NUMERO_HUESPEDES = 100;
     private Huesped[] coleccionHuespedes;
     private int capacidad;
     private int tamano;
 
     public Huespedes(int capacidad) {
-        if (capacidad <= 0 || capacidad > MAX_NUMERO_HUESPEDES) {
-            throw new IllegalArgumentException("ERROR: La capacidad debe ser un número entre 1 y " + MAX_NUMERO_HUESPEDES + ".");
+        if (capacidad <= 0) {
+            throw new IllegalArgumentException("ERROR: La capacidad debe ser un número mayor que 0.");
         }
         this.capacidad = capacidad;
         this.tamano = 0;
@@ -31,86 +29,67 @@ public class Huespedes {
         return copia;
     }
 
-    public void insertar(Huesped huesped) {
+    public void insertar(Huesped huesped) throws OperationNotSupportedException {
         if (huesped == null) {
-            throw new NullPointerException("ERROR: No se puede insertar un huésped nulo.");
+            throw new IllegalArgumentException("ERROR: No se puede insertar un huésped nulo.");
         }
-        int indice = buscarIndice(huesped);
-        if (indice != -1) {
-            throw new IllegalArgumentException("ERROR: Ya existe un huésped con ese DNI.");
-        } else if (tamano == capacidad) {
-            throw new IllegalArgumentException("ERROR: No se aceptan más huéspedes.");
-        } else {
-            coleccionHuespedes[tamano] = new Huesped(huesped);
-            tamano++;
+        if (tamanoSuperado() || buscarIndice(huesped) != -1) {
+            throw new OperationNotSupportedException("ERROR: No se puede insertar el huésped.");
         }
+        coleccionHuespedes[tamano++] = new Huesped(huesped);
     }
 
     private int buscarIndice(Huesped huesped) {
-        int indice = -1;
+        if (huesped == null) {
+            throw new IllegalArgumentException("ERROR: No se puede buscar un huésped nulo.");
+        }
         for (int i = 0; i < tamano; i++) {
             if (coleccionHuespedes[i].equals(huesped)) {
-                indice = i;
+                return i;
             }
         }
-        return indice;
+        return -1;
     }
 
     public Huesped buscar(Huesped huesped) {
-        int indice = buscarIndice(huesped);
-        if (indice == -1) {
-            return null;
-        } else {
-            return new Huesped(coleccionHuespedes[indice]);
+        if (huesped == null) {
+            throw new IllegalArgumentException("ERROR: No se puede buscar un huésped nulo.");
         }
+        int indice = buscarIndice(huesped);
+        return (indice == -1) ? null : new Huesped(coleccionHuespedes[indice]);
     }
 
-    public void borrar(Huesped huesped) {
+    public void borrar(Huesped huesped) throws OperationNotSupportedException {
+        if (huesped == null) {
+            throw new IllegalArgumentException("ERROR: No se puede borrar un huésped nulo.");
+        }
         int indice = buscarIndice(huesped);
         if (indice == -1) {
-            throw new IllegalArgumentException("ERROR: No existe ningún huésped con ese DNI.");
-        } else {
-            desplazarUnaPosicionHaciaIzquierda(indice);
+            throw new OperationNotSupportedException("ERROR: No existe ningún huésped con ese DNI.");
         }
+        desplazarUnaPosicionHaciaIzquierda(indice);
     }
 
     private void desplazarUnaPosicionHaciaIzquierda(int indice) {
         for (int i = indice; i < tamano - 1; i++) {
             coleccionHuespedes[i] = coleccionHuespedes[i + 1];
         }
-        tamano--;
+        coleccionHuespedes[--tamano] = null;
     }
 
-    // Métodos equals y hashCode basados en el identificador
-    @Override
-    public int hashCode() {
-        return Arrays.hashCode(coleccionHuespedes);
+    private boolean tamanoSuperado() {
+        return tamano == capacidad;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        Huespedes other = (Huespedes) obj;
-        return Arrays.equals(coleccionHuespedes, other.coleccionHuespedes);
+    public int getTamano() {
+        return tamano;
     }
 
-    // Método toString para representar el objeto como una cadena
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < tamano; i++) {
-            sb.append(coleccionHuespedes[i].toString()).append("\n");
-        }
-        return sb.toString();
+    public int getCapacidad() {
+        return capacidad;
     }
 
-    public Huesped[] getHuespedes() {
-        return new Huesped[0];
+    private boolean capacidadSuperada(int indice) {
+        return indice >= capacidad;
     }
 }
-
